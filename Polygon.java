@@ -4,21 +4,20 @@
  * @version 10/11/20
  * This class represent a polygon in the Cartesian axis system system.
  */
-// to fix HeronCalc !!
+
 public class Polygon {
 
     Point[] _vertices;
     int _noOfVertices;
     final int MAX_VERTICES = 10;
 
-
     /**
      * Constructor a new polygon.
      * Initialized to max number of vertices.
      */
     public Polygon(){
-        this._vertices = new Point[MAX_VERTICES];
-        _noOfVertices = 0;
+       _vertices = new Point[MAX_VERTICES];
+       _noOfVertices = 0;
     }
 
     /**
@@ -33,7 +32,6 @@ public class Polygon {
             _noOfVertices ++;
             return true;
         }
-
     return false;
     }
 
@@ -42,16 +40,21 @@ public class Polygon {
      * @return The highest point of the polygon.
      */
     public Point highestVertex(){
-      int counter = 0;
-      double maxY = _vertices[0].getY();
-      for(int i = 0 ; i <= _noOfVertices - 1; i++){
-          maxY = Math.max(maxY, _vertices[i].getY());
-      }
-      for(int j = 0 ; j < _noOfVertices; j++){
-          if(_vertices[j].getY() == maxY){
-             counter = j;
-          }
-      }   return new Point(_vertices[counter]);
+    int counter = 0;
+    double maxY = -1;
+    //find what is the max Y value.
+    for(int i = 0; i < _noOfVertices; i++){
+        if(_vertices[i].getY() > maxY)
+            maxY = _vertices[i].getY();
+    }// find which point this value belong.
+    for(int i = 0; i <_noOfVertices; i++){
+        if(_vertices[i].getY() == maxY){
+           break;
+        }else{
+            counter ++;
+        }
+    }
+    return _vertices[counter];
     }
 
     /**
@@ -75,10 +78,11 @@ public class Polygon {
      */
     public double calcPerimeter(){
         double perimeter = 0;
+        // Compare the pointers with ==.
         if(_vertices[1] == null){
             return 0;
         }else{
-            for(int i = 0; i < _vertices.length - 1 ; i++){
+            for(int i = 0; i < _noOfVertices -1 ; i++){
                 if(_vertices[i + 1] != null){
                     perimeter += _vertices[i].distance(_vertices[i + 1]);
                 }
@@ -117,23 +121,10 @@ public class Polygon {
      * @return The position of the point in the array, if not in the array return -1.
      */
     public int findVertex(Point p){
-        int counter = 0;
-        if(!InTheArray(p)){
-            counter = -1;
-        }else{
-        for(int i = 0; i < _noOfVertices ; i++){
-            if(_vertices[i].equals(p)){
-                counter = i;
-                break;
-            }else{
-                counter ++;
-            }
-        }
-        if(counter == _noOfVertices){
-            counter = -1;
-        }
-        }
-        return counter;
+        for(int i =0; i <_noOfVertices; i++){
+           if(_vertices[i].equals(p))
+               return i;
+        }return -1;
     }
 
     /**
@@ -144,22 +135,16 @@ public class Polygon {
      *         else -> return null.
      */
     public Point getNextVertex(Point p){
-        int counter = 0;
-        if(!InTheArray(p)){
+        if(findVertex(p) == -1){
             return null;
         }else{
-            if(_noOfVertices == 2 || _vertices[_noOfVertices -1].equals(p)){
+            if(_noOfVertices == 1 || _vertices[_noOfVertices -1].equals(p)){
                 return new Point(_vertices[0]);
             }else{
-                for(int i =0; i <_noOfVertices; i++){
-                   if(_vertices[i].equals(p)){
-                       counter = i;
-                       break;
-                   }
+                return new Point(_vertices[findVertex(p) +1]);
+                    }
                 }
             }
-        }   return new Point(_vertices[counter + 1]);
-    }
 
     /**
      * Create a rectangle as a polygon that block the polygon.
@@ -173,8 +158,8 @@ public class Polygon {
         Polygon boundingBox = new Polygon();
         boundingBox.addVertex(getMinX(), getMinY());
         boundingBox.addVertex(getMaxX(), getMinY());
-        boundingBox.addVertex(getMaxX(), getMaxY());
-        boundingBox.addVertex(getMinX(), getMaxY());
+        boundingBox.addVertex(getMaxX(), highestVertex().getY());
+        boundingBox.addVertex(getMinX(), highestVertex().getY());
         return boundingBox;
         }
     }
@@ -190,23 +175,6 @@ public class Polygon {
         double powAreaOfTriangle = s * (s - a)*(s - b) * (s - c);
         return Math.sqrt(powAreaOfTriangle);
     }
-
-
-    /*
-        Check if a point is in the array.
-     */
-    private boolean InTheArray(Point p){
-        boolean flag = false;
-        for(int i = 0; i < _noOfVertices; i++){
-            if(_vertices[i].equals(p)){
-                flag = true;
-                break;
-            }
-        }
-        return flag;
-    }
-
-
 
     /*
         Return the minimum X value in the polygon.
@@ -225,9 +193,9 @@ public class Polygon {
     private double getMinY(){
         double minY = _vertices[0].getY();
         for (int i = 1; i < _noOfVertices; i++){
-            minY = Math.min(minY, _vertices[i].getX());
+            minY = Math.min(minY, _vertices[i].getY());
         }
-        return minY -1 ;
+        return minY  ;
     }
 
     /*
@@ -243,27 +211,6 @@ public class Polygon {
 
     /*
         Return the maximum Y value in the polygon.
-     */
-    private double getMaxY(){
-        double maxY = _vertices[0].getY();
-        for (int i = 0; i < _noOfVertices; i++){
-            maxY = Math.max(maxY, _vertices[i].getX());
-        }
-        return maxY -1;
-    }
-
-    /*
-        Return the number of vertices in the polygon.
-     */
-    private int howMuchVertex(){
-        int counter = 0;
-        for(int i = 0; i < _vertices.length; i++){
-           if(_vertices[i] != null){
-               counter ++;
-           }else break;
-        }
-        return counter;
-    }
 
     /*
         Create a string from all the vertices to string.
