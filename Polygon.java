@@ -10,14 +10,15 @@ public class Polygon {
     Point[] _vertices;
     int _noOfVertices;
     final int MAX_VERTICES = 10;
+    final  int MIN_TO_POLYGON =3;
 
     /**
      * Constructor a new polygon.
      * Initialized to max number of vertices.
      */
     public Polygon(){
-       _vertices = new Point[MAX_VERTICES];
-       _noOfVertices = 0;
+        _vertices = new Point[MAX_VERTICES];
+        _noOfVertices = 0;
     }
 
     /**
@@ -32,7 +33,7 @@ public class Polygon {
             _noOfVertices ++;
             return true;
         }
-    return false;
+        return false;
     }
 
     /**
@@ -40,21 +41,24 @@ public class Polygon {
      * @return The highest point of the polygon.
      */
     public Point highestVertex(){
-    int counter = 0;
-    double maxY = -1;
-    //find what is the max Y value.
-    for(int i = 0; i < _noOfVertices; i++){
-        if(_vertices[i].getY() > maxY)
-            maxY = _vertices[i].getY();
-    }// find which point this value belong.
-    for(int i = 0; i <_noOfVertices; i++){
-        if(_vertices[i].getY() == maxY){
-           break;
-        }else{
-            counter ++;
+        if(_noOfVertices > 0){
+            int counter = 0;
+            double maxY = -1;
+            //find what is the max Y value.
+            for(int i = 0; i < _noOfVertices; i++){
+                if(_vertices[i].getY() > maxY)
+                    maxY = _vertices[i].getY();
+            }// find which point this value belong.
+            for(int j = 0; j <_noOfVertices; j++){
+                if(_vertices[j].getY() == maxY){
+                    break;
+                }else{
+                    counter ++;
+                }
+            }
+            return new Point(_vertices[counter]);
         }
-    }
-    return _vertices[counter];
+        return null;
     }
 
     /**
@@ -92,17 +96,17 @@ public class Polygon {
 
     /**
      * Calculate the polygon area.
-      * @return The polygon area.
+     * @return The polygon area.
      */
     public double calcArea(){
-       double sum = 0;
-        if(_noOfVertices < 3){
-           sum = 0;
-       }else {
-           for(int i = 1; i <= _noOfVertices - 2; i++){
-               sum += heronCalc(_vertices[0], _vertices[i], _vertices[i + 1]);
-           }
-       }
+        double sum = 0;
+        if(_noOfVertices < MIN_TO_POLYGON){
+            sum = 0;
+        }else {
+            for(int i = 1; i <= _noOfVertices - 2; i++){
+                sum += heronCalc(_vertices[0], _vertices[i], _vertices[i + 1]);
+            }
+        }
         return sum;
     }
 
@@ -122,8 +126,8 @@ public class Polygon {
      */
     public int findVertex(Point p){
         for(int i =0; i <_noOfVertices; i++){
-           if(_vertices[i].equals(p))
-               return i;
+            if(_vertices[i].equals(p))
+                return i;
         }return -1;
     }
 
@@ -142,9 +146,9 @@ public class Polygon {
                 return new Point(_vertices[0]);
             }else{
                 return new Point(_vertices[findVertex(p) +1]);
-                    }
-                }
             }
+        }
+    }
 
     /**
      * Create a rectangle as a polygon that block the polygon.
@@ -152,15 +156,15 @@ public class Polygon {
      */
 
     public Polygon getBoundingBox(){
-        if(_noOfVertices <=3 ){
+        if(_noOfVertices <=MIN_TO_POLYGON ){
             return null;
         }else {
-        Polygon boundingBox = new Polygon();
-        boundingBox.addVertex(getMinX(), getMinY());
-        boundingBox.addVertex(getMaxX(), getMinY());
-        boundingBox.addVertex(getMaxX(), highestVertex().getY());
-        boundingBox.addVertex(getMinX(), highestVertex().getY());
-        return boundingBox;
+            Polygon boundingBox = new Polygon();
+            boundingBox.addVertex(getMinX(), getMinY());
+            boundingBox.addVertex(getMaxX(), getMinY());
+            boundingBox.addVertex(getMaxX(), highestVertex().getY());
+            boundingBox.addVertex(getMinX(), highestVertex().getY());
+            return boundingBox;
         }
     }
 
@@ -208,9 +212,6 @@ public class Polygon {
         }
         return maxX;
     }
-
-    /*
-        Return the maximum Y value in the polygon.
 
     /*
         Create a string from all the vertices to string.
